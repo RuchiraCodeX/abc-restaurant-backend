@@ -40,7 +40,7 @@ public class AuthController {
      @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
         try {
-            // Check if user already exists
+            
             if (userService.findByUsername(user.getUsername()).isPresent()) {
                 return ResponseEntity.badRequest().body("Username already exists");
             }

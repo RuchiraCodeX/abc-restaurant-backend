@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api")
@@ -60,17 +61,17 @@ public class AuthController {
 
     @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String username, @RequestParam String password) {
-        Optional<User> user = userService.findByUsername(username);
+public ResponseEntity<Map<String, String>> login(@RequestParam @NotBlank String username, @RequestParam @NotBlank String password) {
+    Optional<User> user = userService.findByUsername(username);
 
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("role", "USER"); 
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
-        }
+    if (user.isPresent() && user.get().getPassword().equals(password)) {
+        Map<String, String> response = new HashMap<>();
+        response.put("role", getRole(user.get())); 
+        return ResponseEntity.ok(response);
+    } else {
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
     }
+}
 
     private String getRole(User user) {
        

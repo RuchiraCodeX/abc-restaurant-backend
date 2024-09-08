@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,9 +23,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
+@Validated
 public class AuthController {
 
     private final UserService userService;
@@ -34,9 +37,13 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+     @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
         try {
+            // Check if user already exists
+            if (userService.findByUsername(user.getUsername()).isPresent()) {
+                return ResponseEntity.badRequest().body("Username already exists");
+            }
             userService.registerUser(user);
             return ResponseEntity.ok("User registered successfully");
         } catch (RuntimeException e) {
